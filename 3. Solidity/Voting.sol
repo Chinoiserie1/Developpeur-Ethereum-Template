@@ -46,7 +46,7 @@ contract Voting is Ownable {
     event ProposalRegistered(uint proposalId);
     event Voted (address voter, uint proposalId);   
 
-    function getWhitelistVoters(address _address) public onlyOwner() inStatus(WorkflowStatus.RegisteringVoters) {
+    function addWhitelistVoters(address _address) public onlyOwner() inStatus(WorkflowStatus.RegisteringVoters) {
         require(!_voter[_address].isRegistered, "Already whitelisted");
         _voter[_address].isRegistered = true;
         emit VoterRegistered(_address);

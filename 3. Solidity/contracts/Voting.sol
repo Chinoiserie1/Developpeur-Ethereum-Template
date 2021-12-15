@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.10;
 
 import "../../../openzeppelin-contracts/contracts/access/Ownable.sol";
 
@@ -46,19 +46,18 @@ contract Voting is Ownable {
     event ProposalRegistered(uint proposalId);
     event Voted (address voter, uint proposalId);   
 
-    function getWhitelistVoters(address _address) public onlyOwner() inStatus(WorkflowStatus.RegisteringVoters) {
+    function addWhitelistVoters(address _address) public onlyOwner() inStatus(WorkflowStatus.RegisteringVoters) {
         require(!_voter[_address].isRegistered, "Already whitelisted");
         _voter[_address].isRegistered = true;
-        id++;
-        _voter[_address].votedProposalId = id;
         emit VoterRegistered(_address);
     }
 
     function addProposal(string memory _description) public inStatus(WorkflowStatus.ProposalsRegistrationStarted) {
         require(_voter[msg.sender].isRegistered == true, "U are not whitelisted");
-        uint256 _id = _voter[msg.sender].votedProposalId;
-        proposal[id].description = _description;
-        emit  ProposalRegistered(_id);
+        proposal.push(Proposal({description: _description, voteCount: 0}));
+        _voter[msg.sender].votedProposalId = id;
+        emit  ProposalRegistered(id);
+        id++;
     }
 
     function addVote(uint256 _proposalId) public inStatus(WorkflowStatus.VotingSessionStarted) {
