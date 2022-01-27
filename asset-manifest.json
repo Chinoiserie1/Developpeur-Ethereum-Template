@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/css/main.b100e6da.chunk.css",
+    "main.js": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/js/main.85d254bd.chunk.js",
+    "main.js.map": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/js/main.85d254bd.chunk.js.map",
+    "runtime-main.js": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/js/runtime-main.68f61961.js",
+    "runtime-main.js.map": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/js/runtime-main.68f61961.js.map",
+    "static/css/2.37c457eb.chunk.css": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/css/2.37c457eb.chunk.css",
+    "static/js/2.731f9151.chunk.js": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/js/2.731f9151.chunk.js",
+    "static/js/2.731f9151.chunk.js.map": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/js/2.731f9151.chunk.js.map",
+    "index.html": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/index.html",
+    "precache-manifest.38ac749262cc096696050038f3366e98.js": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/precache-manifest.38ac749262cc096696050038f3366e98.js",
+    "service-worker.js": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/service-worker.js",
+    "static/css/2.37c457eb.chunk.css.map": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/css/2.37c457eb.chunk.css.map",
+    "static/css/main.b100e6da.chunk.css.map": "/Developpeur-Ethereum-Template/6.%20Dapp/defi3/static/css/main.b100e6da.chunk.css.map"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.68f61961.js",
+    "static/css/2.37c457eb.chunk.css",
+    "static/js/2.731f9151.chunk.js",
+    "static/css/main.b100e6da.chunk.css",
+    "static/js/main.85d254bd.chunk.js"
+  ]
+}
