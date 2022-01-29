@@ -7,11 +7,12 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Table from 'react-bootstrap/Table';
-
 import "./App.css";
 
 class App extends Component {
-  state = { web3: null, accounts: null, contract: null, owner: null, id: null, proposal: null };
+  state = { web3: null, accounts: null, contract: null, whitelistAddr: [],
+    owner: null, id: null, proposal: null };
+  // idWhitelist = -1;
   status = null;
   showStatus = null;
   whitelist = null;
@@ -46,6 +47,8 @@ class App extends Component {
       // example of interacting with the contract's methods.
       this.setState({ web3, accounts, contract: instance, owner, id }, this.runExample);
       this.proposal();
+      this.showWhitelistAddr();
+      console.log(this.state.whitelistAddr);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -71,6 +74,17 @@ class App extends Component {
       alert("U are whitelist");
     }
   }
+  showWhitelistAddr = async () => {
+    const { contract } = this.state;
+    let result = await contract.methods.getWhitelistAddr().call();
+
+    this.setState({ whitelistAddr: result });
+    contract.events.VoterRegistered({})
+      .on('data', () => {
+        window.location.reload();
+      })
+      .on('error', console.error);
+  }
   addWhitelist = async () => {
     const { accounts, contract, owner } = this.state;
     const address = this.address.value;
@@ -80,7 +94,8 @@ class App extends Component {
       console.log("U are not the owner");
     } else {
       if (address !== '') {
-        await contract.methods.addWhitelistVoters(address).send({from: accounts[0]})
+        await contract.methods.addWhitelistVoters(address).send({from: accounts[0]});
+        // this.showWhitelistAddr();
       } else {
         alert("Pls add an address");
         console.log("pls add an address");
@@ -127,6 +142,7 @@ class App extends Component {
     if(accounts[0] === owner) {
       const res = await contract.methods.changeStatus(newStatus).send({ from: accounts[0] });
       console.log(res);
+      window.location.reload();
     } else {
       alert("U are not the owner");
     }
@@ -140,6 +156,7 @@ class App extends Component {
     } else {
       const res = await contract.methods.addProposal(message).send({ from: accounts[0] });
       console.log(res);
+      window.location.reload();
     }
   }
   proposal = async () => {
@@ -166,6 +183,7 @@ class App extends Component {
     } else {
       const res = await contract.methods.addVote(id).send({ from: accounts[0] });
       console.log(res);
+      window.location.reload();
     }
   }
   searchWinner = async () => {
@@ -175,7 +193,7 @@ class App extends Component {
       this.winner = 1;
       const res = await contract.methods.searchWinner().send({ from: accounts[0] });
       console.log(res);
-      console.log("okok");
+      window.location.reload();
     } else {
       alert("U are not the owner");
     }
@@ -201,6 +219,30 @@ class App extends Component {
             <Card.Header><strong>Est ce que je suis whitelist</strong></Card.Header>
             <Card.Body>
               <Button onClick={ this.checkWhitelist } variant="dark" > Check </Button>
+            </Card.Body>
+          </Card>
+        </div>
+        <br></br>
+        <div style={{display: 'flex', justifyContent: 'center'}}>
+          <Card style={{ width: '50rem' }}>
+            <Card.Header><strong>Liste des comptes whitelisté</strong></Card.Header>
+            <Card.Body>
+              <ListGroup variant="flush">
+                <ListGroup.Item>
+                  <Table striped bordered hover>
+                    <thead>
+                      <tr>
+                        <th>@</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {this.state.whitelistAddr !== null && 
+                        this.state.whitelistAddr.map((a) => <tr><td>{a}</td></tr>)
+                      }
+                    </tbody>
+                  </Table>
+                </ListGroup.Item>
+              </ListGroup>
             </Card.Body>
           </Card>
         </div>
