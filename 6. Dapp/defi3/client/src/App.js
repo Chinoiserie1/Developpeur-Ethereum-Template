@@ -93,7 +93,6 @@ class App extends Component {
     } else {
       if (address !== '') {
         await contract.methods.addWhitelistVoters(address).send({from: accounts[0]});
-        // this.showWhitelistAddr();
       } else {
         alert("Pls add an address");
         console.log("pls add an address");
@@ -203,6 +202,7 @@ class App extends Component {
     }
     return (
       <div className="App">
+        <br></br>
         <div>
           <h2 className="text-center">Voting</h2>
           <hr></hr>
@@ -210,9 +210,18 @@ class App extends Component {
         <div>
           <h3 className="second-text-center"> Current status = {this.showStatus} </h3>
           <hr></hr>
-          <br></br>
+          {/* <br></br> */}
         </div>
         <div style={{display: 'flex', justifyContent: 'center'}}>
+          <Card style={{ width: '50rem' }}>
+            <Card.Header><strong>Nouvelle session</strong></Card.Header>
+            <Card.Body>
+              <Button onClick={ this.changeStatus } variant="dark" > Next session </Button>
+            </Card.Body>
+          </Card>
+        </div>
+        <br></br>
+        {/* <div style={{display: 'flex', justifyContent: 'center'}}>
           <Card style={{ width: '50rem' }}>
             <Card.Header><strong>Est ce que je suis whitelist</strong></Card.Header>
             <Card.Body>
@@ -220,7 +229,7 @@ class App extends Component {
             </Card.Body>
           </Card>
         </div>
-        <br></br>
+        <br></br> */}
         <div style={{display: 'flex', justifyContent: 'center'}}>
           <Card style={{ width: '50rem' }}>
             <Card.Header><strong>Liste des comptes whitelisté</strong></Card.Header>
@@ -245,20 +254,23 @@ class App extends Component {
           </Card>
         </div>
         <br></br>
-        <div style={{display: 'flex', justifyContent: 'center'}}>
-          <Card style={{ width: '50rem' }}>
-            <Card.Header><strong>Autoriser un nouveau compte</strong></Card.Header>
-            <Card.Body>
-              <Form.Group>
-                <Form.Control type="text" id="address"
-                ref={(input) => { this.address = input }}
-                />
-              </Form.Group>
-              <Button onClick={ this.addWhitelist } variant="dark" > Autoriser </Button>
-            </Card.Body>
-          </Card>
-        </div>
-        <br></br>
+          {console.log(this.status)}
+        { this.status == 0 ? 
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+            <Card style={{ width: '50rem' }}>
+              <Card.Header><strong>Autoriser un nouveau compte</strong></Card.Header>
+              <Card.Body>
+                <Form.Group>
+                  <Form.Control type="text" id="address"
+                  ref={(input) => { this.address = input }}
+                  />
+                </Form.Group>
+                <Button onClick={ this.addWhitelist } variant="dark" > Autoriser </Button>
+              </Card.Body>
+            </Card>
+          </div> : <div></div>
+        }
+        {/* <br></br>
         <div style={{display: 'flex', justifyContent: 'center'}}>
           <Card style={{ width: '50rem' }}>
             <Card.Header><strong>Nouvelle session</strong></Card.Header>
@@ -266,82 +278,92 @@ class App extends Component {
               <Button onClick={ this.changeStatus } variant="dark" > Next session </Button>
             </Card.Body>
           </Card>
-        </div>
+        </div> */}
         <br></br>
-        <div style={{display: 'flex', justifyContent: 'center'}}>
-          <Card style={{ width: '50rem' }}>
-            <Card.Header><strong>Ajout d'une proposition</strong></Card.Header>
-            <Card.Body>
-              <Form.Group>
-                <Form.Control type="text" id="address"
-                ref={(input) => { this.message = input }}
-                />
-              </Form.Group>
-              <Button onClick={ this.addProposal } variant="dark" > Ajouter </Button>
-            </Card.Body>
-          </Card>
-        </div>
+        { this.status == "1" ? 
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+            <Card style={{ width: '50rem' }}>
+              <Card.Header><strong>Ajout d'une proposition</strong></Card.Header>
+              <Card.Body>
+                <Form.Group>
+                  <Form.Control type="text" id="address"
+                  ref={(input) => { this.message = input }}
+                  />
+                </Form.Group>
+                <Button onClick={ this.addProposal } variant="dark" > Ajouter </Button>
+              </Card.Body>
+            </Card>
+          </div> : <div></div>
+        }
         <br></br>
-        <div style={{display: 'flex', justifyContent: 'center'}}>
-          <Card style={{ width: '50rem' }}>
-            <Card.Header><strong>Liste des propositions</strong></Card.Header>
-            <Card.Body>
-              <ListGroup variant="flush">
-                <ListGroup.Item>
-                  <Table striped bordered hover>
-                    <tbody>
-                      {this.state.proposal !== null && 
-                        this.state.proposal.map((a) => <tr><td>{a}</td></tr>)
-                      }
-                    </tbody>
-                  </Table>
-                </ListGroup.Item>
-              </ListGroup>
-            </Card.Body>
-          </Card>
-        </div>
+        { this.status != "0" ? 
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+            <Card style={{ width: '50rem' }}>
+              <Card.Header><strong>Liste des propositions</strong></Card.Header>
+              <Card.Body>
+                <ListGroup variant="flush">
+                  <ListGroup.Item>
+                    <Table striped bordered hover>
+                      <tbody>
+                        {this.state.proposal !== null && 
+                          this.state.proposal.map((a) => <tr><td>{a}</td></tr>)
+                        }
+                      </tbody>
+                    </Table>
+                  </ListGroup.Item>
+                </ListGroup>
+              </Card.Body>
+            </Card>
+          </div> : <div></div>
+        }
         <br></br>
-        <div style={{display: 'flex', justifyContent: 'center'}}>
-          <Card style={{ width: '50rem' }}>
-            <Card.Header><strong>Voter le numero de la proposition</strong></Card.Header>
-            <Card.Body>
-              <Form.Group>
-                <Form.Control type="text" id="address"
-                ref={(input) => { this.id = input }}
-                />
-              </Form.Group>
-              <Button onClick={ this.voting } variant="dark" > Submit vote </Button>
-            </Card.Body>
-          </Card>
-        </div>
+        { this.status == "3" ? 
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+            <Card style={{ width: '50rem' }}>
+              <Card.Header><strong>Voter le numero de la proposition</strong></Card.Header>
+              <Card.Body>
+                <Form.Group>
+                  <Form.Control type="text" id="address"
+                  ref={(input) => { this.id = input }}
+                  />
+                </Form.Group>
+                <Button onClick={ this.voting } variant="dark" > Submit vote </Button>
+              </Card.Body>
+            </Card>
+          </div> : <div></div>
+        }
         <br></br>
-        <div style={{display: 'flex', justifyContent: 'center'}}>
-          <Card style={{ width: '50rem' }}>
-            <Card.Header><strong>Comptabilisation des voies</strong></Card.Header>
-            <Card.Body>
-              <Button onClick={ this.searchWinner } variant="dark" > Run </Button>
-            </Card.Body>
-          </Card>
-        </div>
+        { this.status == "4" ?
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+            <Card style={{ width: '50rem' }}>
+              <Card.Header><strong>Comptabilisation des voies</strong></Card.Header>
+              <Card.Body>
+                <Button onClick={ this.searchWinner } variant="dark" > Run </Button>
+              </Card.Body>
+            </Card>
+          </div> : <div></div>
+        }
         <br></br>
-        <div style={{display: 'flex', justifyContent: 'center'}}>
-          <Card style={{ width: '50rem' }}>
-            <Card.Header><strong>Propositions gagnante</strong></Card.Header>
-            <Card.Body>
-              <ListGroup variant="flush">
-                <ListGroup.Item>
-                  <Table striped bordered hover>
-                    <tbody>
-                      {this.winner !== null && 
-                        <tr><td>{this.winnerId}</td></tr>
-                      }
-                    </tbody>
-                  </Table>
-                </ListGroup.Item>
-              </ListGroup>
-            </Card.Body>
-          </Card>
-        </div>
+        { this.status == "5" ?
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+            <Card style={{ width: '50rem' }}>
+              <Card.Header><strong>Propositions gagnante</strong></Card.Header>
+              <Card.Body>
+                <ListGroup variant="flush">
+                  <ListGroup.Item>
+                    <Table striped bordered hover>
+                      <tbody>
+                        {this.winner !== null && 
+                          <tr><td>{this.winnerId}</td></tr>
+                        }
+                      </tbody>
+                    </Table>
+                  </ListGroup.Item>
+                </ListGroup>
+              </Card.Body>
+            </Card>
+          </div> : <div></div>
+        }
       </div>
     );
   }

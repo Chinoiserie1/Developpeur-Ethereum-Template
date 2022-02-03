@@ -16553,12 +16553,12 @@
         }
       },
       "links": {},
-      "address": "0xe253a83D233cb2688361C96Aa7BAB899f9c35a1d",
-      "transactionHash": "0xddbd52e52d211cc12f7d6e9285fbefd22e9da2d16a4d7e423cd357088f9f6253"
+      "address": "0x4dA779d8Fd1e17814DeF9ab27690B5AcC8d89b44",
+      "transactionHash": "0xc1fe7fb60c24cb9b425efa0be5cfb3b5478fb562d22ddc3fc20f2bfddc593b0a"
     }
   },
   "schemaVersion": "3.4.1",
-  "updatedAt": "2022-01-29T13:33:56.928Z",
+  "updatedAt": "2022-02-03T14:40:12.842Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
