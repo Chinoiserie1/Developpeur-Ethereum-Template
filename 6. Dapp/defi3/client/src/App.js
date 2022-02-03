@@ -12,7 +12,6 @@ import "./App.css";
 class App extends Component {
   state = { web3: null, accounts: null, contract: null, whitelistAddr: [],
     owner: null, id: null, proposal: null };
-  // idWhitelist = -1;
   status = null;
   showStatus = null;
   whitelist = null;
@@ -48,7 +47,6 @@ class App extends Component {
       this.setState({ web3, accounts, contract: instance, owner, id }, this.runExample);
       this.proposal();
       this.showWhitelistAddr();
-      console.log(this.state.whitelistAddr);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(

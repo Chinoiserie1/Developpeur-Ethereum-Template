@@ -7,6 +7,7 @@ contract Voting is Ownable {
     uint256 public winningProposalId = 0;
     uint256 public id = 0;
 
+    address[] public whitelistAddr;
     mapping(address => Voter) public _voter;
 
     struct Voter {
@@ -39,6 +40,9 @@ contract Voting is Ownable {
         require(Status == _status, "Invalid Status");
         _;
     }
+    function getWhitelistAddr() public view returns(address[] memory){
+        return whitelistAddr;
+    }
     function changeStatus(WorkflowStatus _newStatus) public onlyOwner() {
         emit WorkflowStatusChange(Status, _newStatus);
         Status = _newStatus;
@@ -46,6 +50,7 @@ contract Voting is Ownable {
 
     function addWhitelistVoters(address _address) public onlyOwner() inStatus(WorkflowStatus.RegisteringVoters) {
         require(!_voter[_address].isRegistered, "Already whitelisted");
+        whitelistAddr.push(_address);
         _voter[_address].isRegistered = true;
         emit VoterRegistered(_address);
     }
