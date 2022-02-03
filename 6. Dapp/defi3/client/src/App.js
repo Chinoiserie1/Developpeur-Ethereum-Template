@@ -42,6 +42,14 @@ class App extends Component {
         this.winnerId = await instance.methods.getWinner().call();
         console.log("winner id = " + this.winnerId);
       }
+      window.ethereum.on('accountsChanged', async () => {
+        console.log("account changed");
+        window.location.reload();
+      });
+      window.ethereum.on('chainChanged', async () => {
+        console.log("network changed");
+        window.location.reload();
+      });
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       this.setState({ web3, accounts, contract: instance, owner, id }, this.runExample);
@@ -210,7 +218,6 @@ class App extends Component {
         <div>
           <h3 className="second-text-center"> Current status = {this.showStatus} </h3>
           <hr></hr>
-          {/* <br></br> */}
         </div>
         <div style={{display: 'flex', justifyContent: 'center'}}>
           <Card style={{ width: '50rem' }}>
@@ -270,15 +277,6 @@ class App extends Component {
             </Card>
           </div> : <div></div>
         }
-        {/* <br></br>
-        <div style={{display: 'flex', justifyContent: 'center'}}>
-          <Card style={{ width: '50rem' }}>
-            <Card.Header><strong>Nouvelle session</strong></Card.Header>
-            <Card.Body>
-              <Button onClick={ this.changeStatus } variant="dark" > Next session </Button>
-            </Card.Body>
-          </Card>
-        </div> */}
         <br></br>
         { this.status == "1" ? 
           <div style={{display: 'flex', justifyContent: 'center'}}>
