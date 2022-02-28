@@ -25,33 +25,27 @@ class Unstake extends Component {
     this.state = this.props.state;
   }
   ether = (n) => { return n * (10**18) }
-  // componentDidMount() {
-  //   // const { accounts } = this.state;
-  //   // const tokenUnstake = this.addresTokenToUnstake.value;
-  //   // const amountToUnstake = this.amountToUnstake.value;
-  //   // this.setState({tokenUnstake, amountToUnstake});
-  // }
   unstake = async () => {
-    console.log("button clicked");
-    const tab = ["lol"];
-    const { stacking, accounts, contract } = this.state;
+    const { stacking, accounts } = this.state;
     const tokenUnstake = this.addresTokenToUnstake.value;
     const amountToUnstake = this.amountToUnstake.value;
-    let tokenId = await stacking.methods.getStakeIdToWithdraw(tokenUnstake).call({from: accounts[0]});
-    // let res = await stacking.methods.getPair(this.addressERC[0]).call();
-    // console.log(res);
-    if (tokenId) {
-      let result;
-      if (tokenUnstake == this.addressERC[0]) {
-        result = await stacking.methods.claimReward(tokenUnstake, tokenId, this.addressPair[0].address, this.addressPair[0].decimal).send({from: accounts[0]});
+    try {
+      this.setState({isLoading: true});
+      let tokenId = await stacking.methods.getStakeIdToWithdraw(tokenUnstake).call({from: accounts[0]});
+      if (tokenId) {
+        let result = await stacking.methods.claimReward(tokenUnstake, tokenId).send({from: accounts[0]});
+        console.log(result);
+        let res = await stacking.methods.unstake(tokenUnstake, this.ether(amountToUnstake).toString(), tokenId).send({ from: accounts[0]});
+        console.log(res);
+        this.setState({isLoading: false});
+        this.setState({status: "success"})
+        // window.location.reload();
       }
-      if (tokenUnstake == this.addressERC[1]) {
-        result = await stacking.methods.claimReward(tokenUnstake, tokenId, this.addressPair[1].address, this.addressPair[1].decimal).send({from: accounts[0]});
-      }
-      let res = await stacking.methods.unstake(tokenUnstake, this.ether(amountToUnstake).toString(), tokenId).send({ from: accounts[0]});
-      console.log(result);
-      console.log(res);
-      window.location.reload();
+    } catch(error) {
+        alert(`Check console for details.`);
+        console.error(error);
+        this.setState({isLoading: false});
+        this.setState({status: "failed"})
     }
   }
   render() {
@@ -59,24 +53,33 @@ class Unstake extends Component {
     return (
       <CardGroup>
         <Card bg="light" border="dark">
-        <Card.Header>
-          <Card.Title><strong>Unstake</strong></Card.Title>
-        </Card.Header>
-        <Card.Body>
-          <Form>
-            <Form.Group className='stake-token'>
-              <Form.Control type="text" placeholder="Address token" 
-                ref={(input) => { this.addresTokenToUnstake = input }}
-              />
-              <br/>
-              <Form.Control type="number" placeholder="Amount to unstake" 
-                ref={(input) => { this.amountToUnstake = input }}
-              />
-              <br />
-              <Button onClick={ this.unstake }>Unstake</Button>
-            </Form.Group>
-          </Form>
-        </Card.Body>
+          <Card.Header>
+            <Card.Title><strong>Unstake</strong></Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <Form>
+              <Form.Group className='stake-token'>
+                <Form.Control type="text" placeholder="Address token" 
+                  ref={(input) => { this.addresTokenToUnstake = input }}
+                />
+                <br/>
+                <Form.Control type="number" placeholder="Amount to unstake" 
+                  ref={(input) => { this.amountToUnstake = input }}
+                />
+                <br />
+                <Button onClick={ this.unstake }>
+                { this.state.isLoading === false ? <a>Unstake</a> : <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"/>
+                }
+                </Button>
+                <Form.Text style={{margin: '10%'}}><strong>{this.state.status}</strong></Form.Text>
+              </Form.Group>
+            </Form>
+          </Card.Body>
         </Card>
       </CardGroup>
     );

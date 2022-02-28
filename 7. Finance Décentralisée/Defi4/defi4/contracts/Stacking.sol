@@ -44,7 +44,7 @@ contract Stacking {
     _;
   }
   modifier reantrancyGuard() {
-    require(reantrancy == false);
+    require(reantrancy == false, "reantrancy");
     reantrancy = true;
     _;
     reantrancy = false;
@@ -64,47 +64,65 @@ contract Stacking {
     _Pair.decimal = _decimal;
     pair.push(_Pair);
   }
-  function changePair(string memory _name, address _erc20, address _pair) external onlyOwner() {
+  function changePair(string memory _name, address _erc20, address _pair, uint256 _decimal) external onlyOwner() {
     for (uint i = 0; i < pair.length; i++) {
       if (pair[i].addrERC == _erc20) {
         pair[i].name = _name;
         pair[i].addrERC = _erc20;
         pair[i].pair = _pair;
+        pair[i].decimal = _decimal;
       }
     }
-  }
-  function getPair(address _erc20) public view returns(address res) {
-    for (uint i = 0; i < pair.length; i++) {
-      if (pair[i].addrERC == _erc20) {
-        return pair[i].pair;
-      }
-    }
-    return address(0);
   }
   //User
   // need to approve this contract first before transfer token
-  function newStake(address _erc20, uint256 _amount) external reantrancyGuard() {
+  function newStake(address _erc20, uint256 _amount) internal returns(bool success) {
     Stake memory _stake;
     address _pair = getPair(_erc20);
     require(_pair != address(0), "Can't stake this token");
     _stake.token = ERC20(_erc20);
     _stake.depositAmount = _amount;
-    _stake.timeStake = block.timestamp - 360 days;
+    _stake.timeStake = block.timestamp - 364 days;
     stake[msg.sender].push(_stake);
     require(_stake.token.transferFrom(msg.sender, address(this), _amount), "Revert: can't transfer funds");
     emit NewStake(_erc20, msg.sender, _amount);
+    return true;
   }
-  function addStake(address _erc20, uint256 _amount, uint256 _tokenId, uint256 _decimals) external reantrancyGuard() {
+  function getIfStake(address _erc20, address _user) public view returns(bool succ, uint256 res) {
+    bool success;
+    uint256 tokenId = 0;
+    for(uint i = 0; i < stake[_user].length; i++) {
+      if(stake[_user][i].token == ERC20(_erc20)) {
+        success = true;
+        tokenId = i;
+        return (success, tokenId);
+      }
+    }
+    return (false, 0);
+  }
+  // function for new stake & for add stake
+  function stakeErc(address _erc20, uint256 _amount) public reantrancyGuard() {
+    (bool success, uint tokenId) = getIfStake(_erc20, msg.sender);
+    if (success == false) {
+      require(newStake(_erc20, _amount), "failed to stake");
+    } 
+    else {
+      require(addStake(_erc20, _amount, tokenId), "failed to add stake");
+    }
+  }
+  function addStake(address _erc20, uint256 _amount, uint256 _tokenId) internal returns(bool success) {
     Stake memory _stake = stake[msg.sender][_tokenId];
     address _pair = getPair(_erc20);
     require(_pair != address(0), "Can't stake this token");
     require(_stake.token == ERC20(_erc20));
-    claimReward(_erc20, _tokenId, _decimals);
-    _stake.depositAmount.add(_amount);
-    _stake.timeStake = block.timestamp;
-    stake[msg.sender][_tokenId] = _stake;
+    claimReward(_erc20, _tokenId);
     require(_stake.token.transferFrom(msg.sender, address(this), _amount), "Revert: can't transfer funds");
+    _stake.depositAmount = _stake.depositAmount.add(_amount);
+    _stake.timeStake = block.timestamp - 364 days;
+    _stake.refund = false;
+    stake[msg.sender][_tokenId] = _stake;
     emit NewStake(_erc20, msg.sender, _amount);
+    return true;
   }
 
   // call getStakeIdToWithdraw to find the id
@@ -114,6 +132,7 @@ contract Stacking {
     require(_amount <= _stake.depositAmount, "Want to withdraw more than deposit");
     require(_stake.token.transfer(msg.sender, _amount), "Failed to stake fund");
     require(_stake.refund == false, "Already refund");
+    require(claimReward(_erc20, _tokenId), "Need to stake minimum 1 day");
     if (_amount >= _stake.depositAmount) {
       stake[msg.sender][_tokenId].refund = true;
     }
@@ -129,22 +148,26 @@ contract Stacking {
     }
   }
   // problem transaction fail
-  function claimReward(address _erc20,uint256 _tokenId, uint256 _decimals) public reantrancyGuard() {
+  function claimReward(address _erc20, uint256 _tokenId) internal returns(bool success) {
     Stake memory _stake = stake[msg.sender][_tokenId];
     address _pair = getPair(_erc20);
     require(_pair != address(0), "This token can't have reward");
     require(_stake.token == ERC20(_erc20), "Invalid Token");
-    uint256 reward = calculReward(_tokenId, getPair(_erc20), _decimals);
-    require(myToken.sendReward(msg.sender, reward), "failed to claim reward");
-    stake[msg.sender][_tokenId].timeStake = block.timestamp;
-    emit ClaimReward(_erc20, msg.sender, reward);
+    uint256 reward = calculReward(_tokenId, getPair(_erc20), getDecimal(_erc20));
+    if(reward > 0) {
+      require(myToken.sendReward(msg.sender, reward), "failed to claim reward");
+      stake[msg.sender][_tokenId].timeStake = block.timestamp;
+      emit ClaimReward(_erc20, msg.sender, reward);
+      return true;
+    }
+    return false;
   }
   function calculReward(uint256 _tokenId, address _pair, uint256 _decimals) public view returns (uint256 reward) {
     uint256 resTime = block.timestamp.sub(stake[msg.sender][_tokenId].timeStake);
     uint256 period = resTime.div(interestPeriod);
     uint256 pairr = getPrice(_pair).div(10 ** _decimals);
     uint256 amount = stake[msg.sender][_tokenId].depositAmount.mul(pairr);
-    uint256 res = amount.mul(interest).div(100).mul(period).div(360);
+    uint256 res = amount.mul(interest).div(100).mul(period).div(364);
     return res;
   }
   // get price with chainlink oracle use doc to scop the pair address 
@@ -173,5 +196,23 @@ contract Stacking {
       }
     }
     return _activeStake;
+  }
+  function getAllPair() public view returns(Pair[] memory) {
+    return (pair);
+  }
+  function getPair(address _erc20) public view returns(address addr) {
+    for (uint i = 0; i < pair.length; i++) {
+      if (pair[i].addrERC == _erc20) {
+        return pair[i].pair;
+      }
+    }
+    return address(0);
+  }
+  function getDecimal(address _erc20) public view returns(uint decimal) {
+    for (uint i = 0; i < pair.length; i++) {
+      if (pair[i].addrERC == _erc20) {
+        return pair[i].decimal;
+      }
+    }
   }
 }

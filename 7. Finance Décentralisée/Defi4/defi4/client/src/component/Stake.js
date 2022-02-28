@@ -74,6 +74,7 @@ class Stake extends Component {
   }
   ether = (n) => { return n * (10**18) }
   addNewStake = async () => {
+    console.log("enter");
     const { web3, accounts, stacking } = this.state;
     const addressToken = this.addressTokenToStake.value;
     const contract = new web3.eth.Contract(
@@ -81,13 +82,17 @@ class Stake extends Component {
       addressToken
     )
     const amount = this.amountToStake.value;
+    // let rr = await stacking.methods.pair(1).call();
+    // console.log(rr);
+    let r = await stacking.methods.getIfStake(addressToken, accounts[0]).call({from: accounts[0]});
+    console.log(r);
 
     if (addressToken !== '') {
       try {
         this.setState({isLoading: true});
         var result = await contract.methods.approve(stacking._address, this.ether(amount).toString()).send({ from: accounts[0]});
         console.log(result);
-        var res = await stacking.methods.newStake(addressToken, this.ether(amount).toString()).send({from: accounts[0]});
+        var res = await stacking.methods.stakeErc(addressToken, this.ether(amount).toString()).send({from: accounts[0]});
         console.log(res);
         this.setState({isLoading: false});
         this.setState({status: "success"})
