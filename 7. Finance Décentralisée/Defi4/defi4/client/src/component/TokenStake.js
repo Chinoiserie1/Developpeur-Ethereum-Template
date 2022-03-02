@@ -7,13 +7,28 @@ class CardTokenBody extends Component {
   constructor(props) {
     super(props);
     this.state = this.props.state;
+    this.pair = this.props.pair;
     this.amount = this.props.amount;
+  }
+  async componentDidMount() {
+    const { stacking, accounts } = this.state;
+    const { addrERC, decimal, pair } = this.pair;
+    let tokenId = await stacking.methods.getStakeIdToWithdraw(addrERC).call({from: accounts[0]});
+    let res = await stacking.methods.calculReward(tokenId, pair, decimal).call({from: accounts[0]});
+    this.setState({reward: res / 10 ** 18});
   }
   render() {
     return (
-      <Card>
-        {this.amount / 10 ** 18} token staked
-      </Card>
+      <div>
+        <Card>
+          {this.amount / 10 ** 18} token staked
+        </Card>
+        <br/>
+        <Card>
+          {this.state.reward ? 
+          <div> {this.state.reward} reward token </div> : <div></div>}
+        </Card>
+      </div>
     );
   }
 }
@@ -26,11 +41,8 @@ class CardToken extends Component {
   }
   async componentDidMount() {
     const { stacking, accounts } = this.state;
-    console.log(this.pair);
     let res = await stacking.methods.getActiveStake(accounts[0]).call();
-    // var tokenId = 'undefined';
     this.setState({activeStake: res});
-    console.log(this.state.activeStake);
   }
   ether = (n) => { return n * (10**18) }
   addNewStake = async () => {
@@ -92,9 +104,9 @@ class CardToken extends Component {
           <Card.Body>
             {this.state.activeStake ? this.state.activeStake.map((item) => {
               if(item.token == this.pair.addrERC) {
-                return (<CardTokenBody state={this.state} amount={item.depositAmount} />);
+                return (<CardTokenBody state={this.state} pair={this.pair} amount={item.depositAmount} />);
               }
-              return (<div></div>);
+              // return (<div></div>);
             }) : <div></div>}
           </Card.Body>
           <Card.Footer>
@@ -153,8 +165,8 @@ class TokenStake extends Component {
             <Card.Title><strong>Stake</strong></Card.Title>
           </Card.Header>
           <Card.Body>
-            {this.state.pairs.map((e) => {
-              return (<CardToken state={this.state} pair={e} key={e + this.state.pairs} />);
+            {this.state.pairs.map((p) => {
+              return (<CardToken state={this.state} pair={p} key={p + this.state.pairs} />);
             })}
           </Card.Body>
         </Card>

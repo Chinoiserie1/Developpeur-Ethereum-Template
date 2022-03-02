@@ -80,6 +80,7 @@ contract Stacking {
     Stake memory _stake;
     address _pair = getPair(_erc20);
     require(_pair != address(0), "Can't stake this token");
+    require(_amount > 0);
     _stake.token = ERC20(_erc20);
     _stake.depositAmount = _amount;
     _stake.timeStake = block.timestamp - 364 days;
@@ -114,6 +115,7 @@ contract Stacking {
     Stake memory _stake = stake[msg.sender][_tokenId];
     address _pair = getPair(_erc20);
     require(_pair != address(0), "Can't stake this token");
+    require(_amount > 0);
     require(_stake.token == ERC20(_erc20));
     claimReward(_erc20, _tokenId);
     require(_stake.token.transferFrom(msg.sender, address(this), _amount), "Revert: can't transfer funds");
@@ -130,6 +132,7 @@ contract Stacking {
     Stake memory _stake = stake[msg.sender][_tokenId];
     require(_stake.token == ERC20(_erc20), "Invalid Token");
     require(_amount <= _stake.depositAmount, "Want to withdraw more than deposit");
+    require(_amount > 0, "can not withdraw zero");
     require(_stake.token.transfer(msg.sender, _amount), "Failed to stake fund");
     require(_stake.refund == false, "Already refund");
     require(claimReward(_erc20, _tokenId), "Need to stake minimum 1 day");
@@ -137,6 +140,7 @@ contract Stacking {
       stake[msg.sender][_tokenId].refund = true;
     }
     stake[msg.sender][_tokenId].depositAmount = stake[msg.sender][_tokenId].depositAmount.sub(_amount);
+    stake[msg.sender][_tokenId].timeStake = block.timestamp - 1 days;
     emit Unstake(_erc20, msg.sender, _amount);
   }
   //call this function before unstake

@@ -74,10 +74,6 @@ class App extends Component {
     return (
       <div className="App">
         <NavBar accounts={this.state.accounts} />
-        {/* Stake && All Stake */}
-        {/* <Stake state={this.state} /> */}
-        {/* Unstake token and claim reward */}
-        {/* <Unstake state={this.state} /> */}
         <TokenStake state={this.state} />
       </div>
     );
